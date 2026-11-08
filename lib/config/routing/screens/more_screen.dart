@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../features/auth/application/auth_controller.dart';
-import '../modules/more_module.dart';
+import '../system_modules/more_module.dart';
 import '../navigation/navigation_extensions.dart';
 import '../routing_providers.dart';
 

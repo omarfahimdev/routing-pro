@@ -8,7 +8,8 @@ sealed class GuardResult {
 
   const factory GuardResult.allow() = GuardAllow;
 
-  const factory GuardResult.redirect(String location, {String? reason}) = GuardRedirect;
+  const factory GuardResult.redirect(String location, {String? reason}) =
+      GuardRedirect;
 }
 
 final class GuardAllow extends GuardResult {

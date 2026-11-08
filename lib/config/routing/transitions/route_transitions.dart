@@ -107,7 +107,7 @@ abstract final class RouteTransitions {
   }
 }
 
-/// Drives the browser tab title and the Android recents label.
+/// Drives the browser tab title and the Android recent label.
 class DocumentTitle extends StatelessWidget {
   const DocumentTitle({required this.title, required this.child, super.key});
 

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/session.dart';
 import 'route_module.dart';
 import 'route_spec.dart';
-import 'system_routes.dart';
+import 'system_modules/system_routes.dart';
 
 /// ============================================================================
 /// NAVIGATION CHROME - SEPARATE FROM ROUTING.

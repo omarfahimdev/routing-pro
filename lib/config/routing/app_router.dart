@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/logging/talker_provider.dart';
+import 'system_modules/system_routes.dart';
 import '../../features/auth/application/auth_controller.dart';
 import 'app_navigation_config.dart';
 import 'guards/guard_context.dart';
@@ -14,7 +15,6 @@ import 'route_params.dart';
 import 'router_refresh.dart';
 import 'routing_providers.dart';
 import 'shells/main_shell.dart';
-import 'system_routes.dart';
 
 part 'app_router.g.dart';
 
@@ -40,8 +40,7 @@ GoRouter router(Ref ref) {
   const policy = RedirectPolicy();
   // One observer instance per navigator - see AppRouteObserver's note on why
   // sharing one trips `observer.navigator == null`.
-  AppRouteObserver newObserver(String label) =>
-      AppRouteObserver(talker, registry: registry, label: label);
+  AppRouteObserver newObserver(String label) => AppRouteObserver(talker, registry: registry, label: label);
 
   // Synchronous on purpose: it runs on every navigation including the first
   // frame, and anything async shows up as a flicker.
@@ -58,11 +57,7 @@ GoRouter router(Ref ref) {
   // Preserves the URL the user actually typed so /404 can show it.
   void onException(BuildContext context, GoRouterState state, GoRouter router) {
     talker.warning('[route] unmatched ${state.uri}');
-    router.go(
-      SystemRoutes.notFound.withQuery({
-        RouteQuery.attempted: state.uri.toString(),
-      }),
-    );
+    router.go(SystemRoutes.notFound.withQuery({RouteQuery.attempted: state.uri.toString()}));
   }
 
   final router = GoRouter(
@@ -80,14 +75,10 @@ GoRouter router(Ref ref) {
     routes: [
       navigation.buildShell(
         rootNavigatorKey: rootNavigatorKey,
-        observerFactory: (branch) => [
-          newObserver(branch.destination.spec.name),
-        ],
-        shellBuilder: (context, state, shell) =>
-            MainShell(navigationShell: shell),
+        observerFactory: (branch) => [newObserver(branch.destination.spec.name)],
+        shellBuilder: (context, state, shell) => MainShell(navigationShell: shell),
       ),
-      for (final module in AppModules.topLevel)
-        ...module.routes(rootNavigatorKey),
+      for (final module in AppModules.topLevel) ...module.routes(rootNavigatorKey),
     ],
   );
 

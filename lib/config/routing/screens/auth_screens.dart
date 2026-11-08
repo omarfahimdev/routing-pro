@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/application/auth_controller.dart';
 import '../../../features/auth/data/demo_sessions.dart';
 import '../navigation/navigation_extensions.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// ============================================================================
 /// SIGN-IN.

@@ -10,9 +10,9 @@ import '../../features/reports/presentation/routes/reports_routes.dart';
 import '../../features/settings/presentation/routes/settings_routes.dart';
 import '../../features/terminal/presentation/routes/terminal_routes.dart';
 import 'app_navigation.dart';
-import 'modules/auth_module.dart';
-import 'modules/more_module.dart';
-import 'modules/system_module.dart';
+import 'system_modules/auth_module.dart';
+import 'system_modules/more_module.dart';
+import 'system_modules/system_module.dart';
 import 'route_module.dart';
 
 /// ============================================================================

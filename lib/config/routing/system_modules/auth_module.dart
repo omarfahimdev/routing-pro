@@ -7,7 +7,7 @@ import '../route_params.dart';
 import '../route_spec.dart';
 import '../screens/auth_screens.dart';
 import '../shells/auth_shell.dart';
-import '../system_routes.dart';
+import 'system_routes.dart';
 
 /// SIGN-IN, PASSWORD RECOVERY AND THE E-MAILED RESET DEEP LINK.
 ///

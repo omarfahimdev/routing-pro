@@ -5,7 +5,7 @@ import '../../../features/auth/domain/session.dart';
 import '../route_params.dart';
 import '../route_registry.dart';
 import '../route_spec.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// Where a signed-in user lands. Injected because it depends on the nav
 /// configuration (first visible tab), which core must not import.
@@ -73,13 +73,10 @@ class GuardContext {
   String gate(RouteSpec target) {
     final current = uri.toString();
     if (!_isReturnable(uri.path) || current.isEmpty) return target.path;
-    return Uri(
-      path: target.path,
-      queryParameters: {RouteQuery.from: current},
-    ).toString();
+    return Uri(path: target.path, queryParameters: {RouteQuery.from: current}).toString();
   }
 
-  /// ================================================================================
+  /// ========================================================                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ========================
   /// OPEN REDIRECT PROTECTION.
   ///
   /// Reads `?from=` defensively. On web this value is attacker-controllable
@@ -87,8 +84,7 @@ class GuardContext {
   /// their clone), so anything carrying a scheme, an authority, or a
   /// protocol-relative `//` prefix is discarded.
   /// ================================================================================
-  String? get returnTo =>
-      sanitizeReturnTo(uri.queryParameters[RouteQuery.from]);
+  String? get returnTo => sanitizeReturnTo(uri.queryParameters[RouteQuery.from]);
 
   /// Validates a `?from=` value. Use this - never the raw query string - for
   /// every screen that navigates to it (lock, open-shift, ...), not only the

@@ -5,7 +5,7 @@ import '../navigation/navigation_service.dart';
 import '../route_params.dart';
 import '../route_registry.dart';
 import '../route_spec.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// Normalizes and validates incoming deep links before they reach the router.
 ///

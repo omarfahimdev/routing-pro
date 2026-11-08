@@ -6,7 +6,7 @@ import '../route_module.dart';
 import '../route_params.dart';
 import '../route_spec.dart';
 import '../screens/system_screens.dart';
-import '../system_routes.dart';
+import 'system_routes.dart';
 
 /// ============================================================================
 /// WIRES THE SYSTEM SPECS (core) TO THEIR SCREENS (config).

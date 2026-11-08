@@ -1,7 +1,7 @@
 import '../../../features/auth/domain/auth_state.dart';
 import '../guards/guard_context.dart';
 import '../guards/route_guard.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// ============================================================================
 /// NAVIGATION ACCESS IS DECIDED IN HERE.

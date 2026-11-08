@@ -44,7 +44,7 @@ final class RouteSpec {
   /// go_router route name. Unique across the app (the registry enforces it).
   final String name;
 
-  /// Browser tab title, app bar title, Android recents label.
+  /// Browser tab title, app bar title, Android recent label.
   final String title;
 
   /// This route's own rule. [accessGuard] composes it with its ancestors'.
@@ -66,8 +66,7 @@ final class RouteSpec {
   }
 
   /// PII-free screen name for analytics: `orderDetail` -> `order_detail`.
-  String get analyticsId =>
-      name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
+  String get analyticsId => name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
 
   /// Root-first chain ending in this spec.
   List<RouteSpec> get ancestry {
@@ -79,8 +78,7 @@ final class RouteSpec {
   }
 
   /// Number of literal (non-param) segments - used to rank competing matches.
-  int get literalSegments =>
-      _segments(path).where((s) => !s.startsWith(':')).length;
+  int get literalSegments => _segments(path).where((s) => !s.startsWith(':')).length;
 
   // ------------------------------------------------------------------ access
 
@@ -124,29 +122,19 @@ final class RouteSpec {
           return value == null ? segment : Uri.encodeComponent(value);
         })
         .join('/');
-    assert(
-      !result.contains(':'),
-      'Unfilled path parameter in $name: $result (given ${params.keys})',
-    );
+    assert(!result.contains(':'), 'Unfilled path parameter in $name: $result (given ${params.keys})');
     return result;
   }
 
   String withQuery(Map<String, String?> query) => _build(path, query);
 
-  String withParamsAndQuery(
-    Map<String, String> params,
-    Map<String, String?> query,
-  ) => _build(withParams(params), query);
+  String withParamsAndQuery(Map<String, String> params, Map<String, String?> query) =>
+      _build(withParams(params), query);
 
   static String _build(String base, Map<String, String?> query) {
-    final entries = query.entries.where(
-      (e) => e.value != null && e.value!.isNotEmpty,
-    );
+    final entries = query.entries.where((e) => e.value != null && e.value!.isNotEmpty);
     if (entries.isEmpty) return base;
-    return Uri(
-      path: base,
-      queryParameters: {for (final e in entries) e.key: e.value!},
-    ).toString();
+    return Uri(path: base, queryParameters: {for (final e in entries) e.key: e.value!}).toString();
   }
 
   // ---------------------------------------------------------------- matching
@@ -170,25 +158,22 @@ final class RouteSpec {
     final actual = _segments(location.split('?').first);
     if (pattern.length != actual.length) return params;
     for (var i = 0; i < pattern.length; i++) {
-      if (pattern[i].startsWith(':'))
-        params[pattern[i].substring(1)] = Uri.decodeComponent(actual[i]);
+      if (pattern[i].startsWith(':')) params[pattern[i].substring(1)] = Uri.decodeComponent(actual[i]);
     }
     return params;
   }
 
-  static List<String> _segments(String path) =>
-      path.split('/').where((s) => s.isNotEmpty).toList();
+  static List<String> _segments(String path) => path.split('/').where((s) => s.isNotEmpty).toList();
 
   // ---------------------------------------------------------------- go_router
 
-  Page<void> page(GoRouterState state, Widget child) =>
-      RouteTransitions.buildPage<void>(
-        state: state,
-        child: child,
-        title: title,
-        preset: transition,
-        fullscreenDialog: fullscreen,
-      );
+  Page<void> page(GoRouterState state, Widget child) => RouteTransitions.buildPage<void>(
+    state: state,
+    child: child,
+    title: title,
+    preset: transition,
+    fullscreenDialog: fullscreen,
+  );
 
   /// The one way to turn a spec into a `GoRoute`. Path, name, title and
   /// transition always come from the spec, so they cannot disagree with the

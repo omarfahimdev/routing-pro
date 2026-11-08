@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../route_registry.dart';
 import '../route_spec.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// Navigation from outside the widget tree.
 ///

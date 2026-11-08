@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../features/auth/application/auth_controller.dart';
 import '../navigation/navigation_extensions.dart';
 import '../routing_providers.dart';
-import '../system_routes.dart';
+import '../system_modules/system_routes.dart';
 
 /// Shown while the session is read from disk. The redirect policy moves the
 /// user on as soon as bootstrapping finishes.
