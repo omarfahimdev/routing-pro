@@ -1,5 +1,6 @@
-import 'session.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'session.dart';
 
 part 'auth_state.freezed.dart';
 

@@ -1,39 +1,85 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:routing_pro/core/widgets/feature_placeholder.dart';
 
 import '../../../../config/routing/guards/guards.dart';
 import '../../../../config/routing/route_module.dart';
 import '../../../../config/routing/route_spec.dart';
 import '../../../../config/routing/transitions/route_transitions.dart';
 import '../../../../core/constants/permissions.dart';
+import '../../../../core/widgets/feature_placeholder.dart';
 
-/// Both trees in this feature are gated on the same read permission.
+/// Access rule shared by the product and category trees: a signed-in user who
+/// may view products.
+///
+/// Both trees read the same catalog, so one constant keeps them from drifting.
+/// Child routes inherit it and can only tighten it.
 const _canViewCatalog = CompositeGuard([
   AuthGuard(),
   PermissionGuard({Permissions.viewProducts}),
 ]);
 
-/// ============================================================================
-/// CATALOG (PRODUCTS + CATEGORIES) - BRANCH 3.
+/// Routes for the catalog tab: products and categories.
 ///
-/// Two route trees under one tab, so they share a back stack while URLs stay
-/// honest: `/products/...` and `/categories/...`, not `/catalog/products/...`.
+/// The two route trees sit under one tab, so they share a back stack, while
+/// URLs stay honest: `/products/...` and `/categories/...`, not
+/// `/catalog/products/...`.
 ///
-/// Declaration order matters for `/products/new`: the literal is declared
-/// before `:productId`, or go_router resolves it as a product whose id is
-/// "new". `RouteRegistry.byLocation` ranks by literal segments for the same
+/// ## Route map
+///
+/// | Route              | Path                           | Extra guard      | Navigator |
+/// | ------------------ | ------------------------------ | ---------------- | --------- |
+/// | [list]             | `/products`                    | none             | shell     |
+/// | [create]           | `/products/new`                | `createProduct`  | root      |
+/// | [detail]           | `/products/:productId`         | none             | shell     |
+/// | [edit]             | `/products/:productId/edit`    | `updateProduct`  | shell     |
+/// | [categories]       | `/categories`                  | none             | shell     |
+/// | [categoryCreate]   | `/categories/new`              | `createProduct`  | root      |
+/// | [categoryDetail]   | `/categories/:categoryId`      | none             | shell     |
+/// | [categoryEdit]     | `/categories/:categoryId/edit` | `updateProduct`  | root      |
+///
+/// Every route also inherits the view guard from its tree's root.
+///
+/// ## Declaration order
+///
+/// In [routes], the literal `new` must be declared **before** `:productId`.
+/// Otherwise go_router resolves `/products/new` as a product whose id is
+/// `"new"`. `RouteRegistry.byLocation` ranks by literal segments for the same
 /// reason.
-/// ============================================================================
+///
+/// ## Example
+///
+/// ```dart
+/// // Navigate with typed specs, never path strings.
+/// context.goTo(
+///   CatalogRoutes.detail,
+///   params: {CatalogRoutes.productId: 'sku_42'},
+/// );
+/// ```
+///
+/// See also:
+///
+/// * [RouteModule], the contract this class implements.
+/// * [RouteSpec], which declares each route's path, guard and transition.
 final class CatalogRoutes implements RouteModule {
+  /// Creates the catalog route module.
   const CatalogRoutes();
 
+  /// Path parameter key for a product id.
   static const productId = 'productId';
+
+  /// Path parameter key for a category id.
   static const categoryId = 'categoryId';
 
-  // ------------------------------------------------------------------ products
+  // ---------------------------------------------------------------------------
+  // Products
+  // ---------------------------------------------------------------------------
+
+  /// The product list, `/products`. Root of the products tree.
   static const list = RouteSpec.root('/products', name: 'products', title: 'Products', guard: _canViewCatalog);
 
+  /// The new-product form, `/products/new`.
+  ///
+  /// Opens full screen on the root navigator, above the navigation chrome.
   static const create = RouteSpec.child(
     list,
     'new',
@@ -44,6 +90,7 @@ final class CatalogRoutes implements RouteModule {
     fullscreen: true,
   );
 
+  /// A single product, `/products/:productId`.
   static const detail = RouteSpec.child(
     list,
     ':$productId',
@@ -52,6 +99,7 @@ final class CatalogRoutes implements RouteModule {
     transition: TransitionPreset.slideFromRight,
   );
 
+  /// The edit form for a product, `/products/:productId/edit`.
   static const edit = RouteSpec.child(
     detail,
     'edit',
@@ -61,7 +109,11 @@ final class CatalogRoutes implements RouteModule {
     transition: TransitionPreset.slideFromRight,
   );
 
-  // ---------------------------------------------------------------- categories
+  // ---------------------------------------------------------------------------
+  // Categories
+  // ---------------------------------------------------------------------------
+
+  /// The category list, `/categories`. Root of the categories tree.
   static const categories = RouteSpec.root(
     '/categories',
     name: 'categories',
@@ -69,6 +121,10 @@ final class CatalogRoutes implements RouteModule {
     guard: _canViewCatalog,
   );
 
+  /// The new-category form, `/categories/new`.
+  ///
+  /// Currently gated on [Permissions.createProduct]. Introduce a dedicated
+  /// category permission if categories need separate access control.
   static const categoryCreate = RouteSpec.child(
     categories,
     'new',
@@ -79,6 +135,7 @@ final class CatalogRoutes implements RouteModule {
     fullscreen: true,
   );
 
+  /// A single category, `/categories/:categoryId`.
   static const categoryDetail = RouteSpec.child(
     categories,
     ':$categoryId',
@@ -87,6 +144,9 @@ final class CatalogRoutes implements RouteModule {
     transition: TransitionPreset.slideFromRight,
   );
 
+  /// The edit form for a category, `/categories/:categoryId/edit`.
+  ///
+  /// Currently gated on [Permissions.updateProduct], see [categoryCreate].
   static const categoryEdit = RouteSpec.child(
     categoryDetail,
     'edit',
@@ -97,6 +157,10 @@ final class CatalogRoutes implements RouteModule {
     fullscreen: true,
   );
 
+  /// Every route this module owns, for the route registry.
+  ///
+  /// A spec missing here is invisible to guards, titles and analytics, so keep
+  /// it in sync with [routes].
   @override
   List<RouteSpec> get specs => const [
     list,
@@ -109,6 +173,10 @@ final class CatalogRoutes implements RouteModule {
     categoryEdit,
   ];
 
+  /// Builds the go_router tree for this module.
+  ///
+  /// [rootNavigatorKey] is used by the full-screen routes ([create],
+  /// [categoryCreate], [categoryEdit]) so they render above the shell chrome.
   @override
   List<RouteBase> routes(GlobalKey<NavigatorState> rootNavigatorKey) => [
     list.route(
@@ -121,7 +189,7 @@ final class CatalogRoutes implements RouteModule {
               const FeaturePlaceholder(title: 'New product', subtitle: 'Wire AddProductScreen here.'),
         ),
         detail.route(
-          // builder: (context, state) => ProductDetailScreen(productId: state.requireParam(productId)),
+          // TODO: ProductDetailScreen(productId: state.requireParam(productId))
           builder: (context, state) => const FeaturePlaceholder(title: 'Product details screen'),
           routes: [
             edit.route(
@@ -135,13 +203,14 @@ final class CatalogRoutes implements RouteModule {
     categories.route(
       builder: (context, state) => const FeaturePlaceholder(title: 'Category Screen'),
       routes: [
+        // `new` BEFORE `:categoryId`, for the same reason as products.
         categoryCreate.route(
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) => const FeaturePlaceholder(title: 'Category Form Screen'),
         ),
         categoryDetail.route(
+          // TODO: CategoryDetailsScreen(categoryId: state.requireParam(categoryId))
           builder: (context, state) => const FeaturePlaceholder(title: 'Category Details Screen'),
-          // builder: (context, state) => CategoryDetailsScreen(categoryId: state.requireParam(categoryId)),
           routes: [
             categoryEdit.route(
               parentNavigatorKey: rootNavigatorKey,

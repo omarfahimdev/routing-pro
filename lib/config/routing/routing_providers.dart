@@ -19,14 +19,10 @@ AppNavigation appNavigation(Ref ref) => buildAppNavigation();
 @Riverpod(keepAlive: true)
 RouteRegistry routeRegistry(Ref ref) {
   final navigation = ref.watch(appNavigationProvider);
-  return RouteRegistry.of([
-    ...AppModules.topLevel,
-    for (final branch in navigation.branches) branch.module,
-  ]);
+  return RouteRegistry.of([...AppModules.topLevel, for (final branch in navigation.branches) branch.module]);
 }
 
 /// Validates and applies externally supplied links (notifications, QR codes,
 /// custom schemes).
 @Riverpod(keepAlive: true)
-DeepLinkHandler deepLinkHandler(Ref ref) =>
-    DeepLinkHandler(registry: ref.watch(routeRegistryProvider));
+DeepLinkHandler deepLinkHandler(Ref ref) => DeepLinkHandler(registry: ref.watch(routeRegistryProvider));

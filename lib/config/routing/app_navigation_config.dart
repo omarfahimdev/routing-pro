@@ -10,25 +10,73 @@ import '../../features/reports/presentation/routes/reports_routes.dart';
 import '../../features/settings/presentation/routes/settings_routes.dart';
 import '../../features/terminal/presentation/routes/terminal_routes.dart';
 import 'app_navigation.dart';
+import 'route_module.dart';
 import 'system_modules/auth_module.dart';
 import 'system_modules/more_module.dart';
 import 'system_modules/system_module.dart';
-import 'route_module.dart';
 
-/// ============================================================================
-/// THE COMPOSITION ROOT - THE ONLY FILE THAT KNOWS EVERY FEATURE.
+/// The route modules that live outside the tab shell.
 ///
-/// Adding a feature: write its module, add one line here (a tab in
-/// [buildAppNavigation] or a top-level module in [AppModules]). This file grows
-/// by one line per feature; no route is ever declared in it.
-/// ============================================================================
+/// This file is the composition root: the only place that knows every feature.
+/// Adding a feature means writing its module and adding **one line** here,
+/// either a tab in [buildAppNavigation] or a top-level module in [topLevel].
+/// No route is ever declared in this file.
+///
+/// ```dart
+// / // A new full-screen feature outside the tab shell:
+/// static const topLevel = <RouteModule>[
+///   SystemModule(),
+///   AuthModule(),
+///   CheckoutRoutes(),
+///   ReceiptsRoutes(), // <- one line
+/// ];
+/// ```
+///
+/// See also:
+///
+/// * [buildAppNavigation], which declares the tabs and the drawer.
 abstract final class AppModules {
   const AppModules._();
 
-  /// Routes outside the tab shell: system pages, auth, full-screen flows.
+  /// Modules mounted directly on the root navigator: system pages, auth and
+  /// full-screen flows such as checkout.
+  ///
+  /// The router spreads each module's `routes` into its top-level route list.
   static const topLevel = <RouteModule>[SystemModule(), AuthModule(), CheckoutRoutes()];
 }
 
+/// Builds the app's navigation: the tab branches and the drawer.
+///
+/// ## Ordering contract
+///
+/// The order of `branches` is the tab order **and** the shell branch order, so
+/// branch 0 is the first tab, branch 1 the second, and so on. Reordering a tab
+/// means moving one line in `branches`; nothing else needs to change.
+///
+/// ## Visibility
+///
+/// A destination's `permissions` decide whether its tab or drawer entry is
+/// **shown**. They are separate from the guard on the route spec, which decides
+/// whether the route may be **opened**. For example, the terminal tab is shown
+/// to anyone holding `operateTerminal`, and the shift gate then stops a cashier
+/// who has not opened a register. A destination with no permissions is visible
+/// to every signed-in user.
+///
+/// Keep each destination's `permissions` in step with the guard on its spec,
+/// or a tab can appear that leads to a 403.
+///
+/// ## Tabs and drawer
+///
+/// * **Tabs** (`branches`): dashboard, terminal, orders, products, more.
+/// * **Drawer**: the tabs above plus customers, reports and settings. Those
+///   three are not tabs; they are routes owned by [MoreModule], which mounts
+///   them in the **More** branch so they share one tab and back stack.
+///
+/// ## Example
+///
+/// ```dart
+/// final navigation = buildAppNavigation();
+/// ```
 AppNavigation buildAppNavigation() {
   const dashboard = NavDestination(
     spec: DashboardRoutes.root,

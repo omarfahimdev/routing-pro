@@ -28,15 +28,11 @@ final class RouteRegistry {
 
         final samePath = byPath[spec.path];
         if (samePath != null && !identical(samePath, spec)) {
-          throw StateError(
-            'Duplicate route path "${spec.path}": ${samePath.name} and ${spec.name}',
-          );
+          throw StateError('Duplicate route path "${spec.path}": ${samePath.name} and ${spec.name}');
         }
         final sameName = byName[spec.name];
         if (sameName != null && !identical(sameName, spec)) {
-          throw StateError(
-            'Duplicate route name "${spec.name}": ${sameName.path} and ${spec.path}',
-          );
+          throw StateError('Duplicate route name "${spec.name}": ${sameName.path} and ${spec.path}');
         }
 
         byPath[spec.path] = spec;
@@ -47,22 +43,15 @@ final class RouteRegistry {
     for (final spec in byPath.values) {
       final parent = spec.parent;
       if (parent != null && !byPath.containsKey(parent.path)) {
-        throw StateError(
-          '${spec.name} has parent ${parent.name} which no module registers',
-        );
+        throw StateError('${spec.name} has parent ${parent.name} which no module registers');
       }
     }
 
-    return RouteRegistry._(
-      List.unmodifiable(byPath.values),
-      Map.unmodifiable(byPath),
-      Map.unmodifiable(byName),
-    );
+    return RouteRegistry._(List.unmodifiable(byPath.values), Map.unmodifiable(byPath), Map.unmodifiable(byName));
   }
 
   /// Exact pattern lookup. Feed it `GoRouterState.fullPath`.
-  RouteSpec? byPattern(String? pattern) =>
-      pattern == null ? null : _byPath[pattern];
+  RouteSpec? byPattern(String? pattern) => pattern == null ? null : _byPath[pattern];
 
   RouteSpec? byName(String? name) => name == null ? null : _byName[name];
 
@@ -83,8 +72,7 @@ final class RouteRegistry {
     return best;
   }
 
-  RouteSpec? resolve(GoRouterState state) =>
-      byPattern(state.fullPath) ?? byLocation(state.matchedLocation);
+  RouteSpec? resolve(GoRouterState state) => byPattern(state.fullPath) ?? byLocation(state.matchedLocation);
 
   static void _validate(RouteSpec spec) {
     if (spec.name.isEmpty) {
@@ -93,14 +81,10 @@ final class RouteRegistry {
 
     final isRoot = spec.parent == null;
     if (isRoot && !spec.segment.startsWith('/')) {
-      throw StateError(
-        'Root route ${spec.name} must start with "/": "${spec.segment}"',
-      );
+      throw StateError('Root route ${spec.name} must start with "/": "${spec.segment}"');
     }
     if (!isRoot && (spec.segment.isEmpty || spec.segment.startsWith('/'))) {
-      throw StateError(
-        'Child route ${spec.name} must be a relative segment: "${spec.segment}"',
-      );
+      throw StateError('Child route ${spec.name} must be a relative segment: "${spec.segment}"');
     }
   }
 }
